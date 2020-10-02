@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request
-from pymysql import connections
 import psycopg2
 import os
 import boto3
@@ -7,7 +6,6 @@ from config import *
 
 app = Flask(__name__)
 
-bucket = custombucket
 region = customregion
 connection = psycopg2.connect(user = customuser,
                                   password = custompass,
@@ -30,20 +28,19 @@ def about():
 
 @app.route("/addemp", methods=['POST'])
 def AddEmp():
-    emp_id = request.form['emp_id']
-    first_name = request.form['first_name']
-    last_name = request.form['last_name']
-    pri_skill = request.form['pri_skill']
-    location = request.form['location']
+    empid = request.form['emp_id']
+    firstname = request.form['first_name']
+    lastname = request.form['last_name']
+    priskill = request.form['pri_skill']
+    locati = request.form['location']
     cursor = connection.cursor()
+    insert_sql = "INSERT INTO employee VALUES (%s, %s, %s, %s, %s)"
+    emp_name = "" + firstname + " " + lastname
     try:
-
-        cursor.execute('''INSERT INTO employee(emp_id, first_name, last_name, pri_skill,
-   location) VALUES (emp_id, first_name, last_name, pri_skill, location'''))
-        connection.commit()
-        emp_name = "" + first_name + " " + last_name
+        cursor.execute(insert_sql, (empid, firstname, lastname, priskill, locati))
         # Uplaod image file in S3 #
-		print ( connection.get_dsn_parameters(),"\n")
+        connection.commit()
+        print ( connection.get_dsn_parameters(),"\n")
 
       # Print PostgreSQL version
         cursor.execute("SELECT version();")
@@ -57,6 +54,7 @@ def AddEmp():
             cursor.close()
             connection.close()
             print("PostgreSQL connection is closed")   
-
+    print("all modification done...")
+    return render_template('AddEmpOutput.html', name=emp_name)
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=80, debug=True)
