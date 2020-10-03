@@ -1,5 +1,3 @@
-customhost = "employee.cdhbdikebo6l.us-east-2.rds.amazonaws.com"
-customuser = "postgres"
-custompass = "Venkat143"
+
 customdb = "employeedata"
 customregion = "us-east-2"

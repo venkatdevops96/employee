@@ -2,15 +2,21 @@ from flask import Flask, render_template, request
 import psycopg2
 import os
 import boto3
+import json
 from config import *
 
 app = Flask(__name__)
 
 region = customregion
-connection = psycopg2.connect(user = customuser,
-                                  password = custompass,
-                                  host = customhost,
-                                  port = "5432",
+client = boto3.client('secretsmanager',region_name='us-east-2')
+response = client.get_secret_value(
+    SecretId='dev/employee/app'
+)
+secretDict= json.loads(response['SecretString'])
+connection = psycopg2.connect(user = secretDict['username'],
+                                  password = secretDict['password'],
+                                  host = secretDict['host'],
+                                  port = secretDict['port'],
                                   database = customdb)
 output = {}
 table = 'employee'
@@ -23,7 +29,7 @@ def home():
 
 @app.route("/about", methods=['POST'])
 def about():
-    return render_template('www.intellipaat.com')
+    return render_template('www.google.com')
 
 
 @app.route("/addemp", methods=['POST'])
